@@ -2,28 +2,35 @@ const request = require('request-promise');
 const cheerio = require('cheerio');
 const debug = require('debug')('music:read');
 const read = async(url)=>{
-    debug('https://music.163.com/#/discover/toplist  云音乐飙升榜');
+    debug('https://movie.douban.com');
     const opts = {
-        url,
+        url:url,
         transform: body => {
             return cheerio.load(body);
         }
     };
     return request(opts).then($ => {
         let result = [];
-        $('#toplist .m-table-rank').find('tr').each((index, item) => {
+        $('#screening li.ui-slide-item').each((index, item) => {
             let ele = $(item);
-            let href = ele.find('.rank a').attr('href');
-            let musicId = href && href.match(/(\d+)/)[1];
-            let name = ele.find('.rank .txt b').attr('title');
-            let image = ele.find('.rank img').attr('src');
-            if (!id || !name || !image) {
+            let name = ele.data('title');
+            let score = ele.data('rate') || '暂无评分';
+            let href = ele.find('.poster a').attr('href');
+            let imageSrc = ele.find('img').attr('src');
+            // 影片id可以从影片href中获取到
+            let movieId = href && href.match(/(\d+)/)[1];
+            // 为了防止豆瓣防盗链导致裂图，换成webp格式加载图片
+            imageSrc = imageSrc && imageSrc.replace(/jpg$/, 'webp');
+            if (!name || !imageSrc || !href) {
                 return;
             }
+
             result.push(
                 {
-                    musicId,
+                    movieId,
                     name,
+                    score,
+                    href,
                     imageSrc
                 }
             );
