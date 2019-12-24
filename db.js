@@ -1,11 +1,16 @@
 var mongoose = require('mongoose');
 const mongoURL = 'mongodb://localhost:27017/selfLearn';
 mongoose.connect(mongoURL);
+const db = mongoose.connection;
 /**
 * 连接成功
 */
 mongoose.connection.on('connected', function () {
     console.log('Mongoose connection open to ' + mongoURL);
+});
+
+db.on('open',()=>{
+    console.log('Mongoose connection success');
 });
 
 /**
